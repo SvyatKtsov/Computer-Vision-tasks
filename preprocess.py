@@ -78,19 +78,24 @@ s = (800, 800)
 save_dir = r"autoencoder_data/train_set" 
 print(len(os.listdir(save_dir)))
 # os.path.basename(path): /dir1/dir2/dir3/file.txt -> file.txt (returns filename)
-def resize_images(img_paths: str, size: tuple, save_dir: str) -> int: # 0 or 1 if fail/success
+def preprocess(img_paths: str, size: tuple, save_dir: str) -> int: # 0 or 1 if fail/success
     try:
         for img in img_paths: # full paths
-            im = cv2.imread(img)
-            cv2.imwrite(os.path.join(save_dir, os.path.basename(img)), cv2.resize(im, size))
+            #im = cv2.imread(img); resized_im = cv2.resize(im, size)
+            resized_im = cv2.resize(cv2.imread(img), size)
+            base = os.path.splitext(os.path.join(save_dir, os.path.basename(img)))[0]
+            cv2.imwrite(base + '.jpg', resized_im)
+            cv2.imwrite(base + '_vertical_fl.jpg', cv2.flip(resized_im, 0))
+            cv2.imwrite(base + '_vertical_and_hor_fl.jpg', cv2.flip(resized_im, 1))
+            cv2.imwrite(base + '_hor_fl.jpg', cv2.flip(resized_im, -1))
     except Exception as e:
         print(f"error occured: {e}")
         return 0
     return 1
 
 # save_dir = r"autoencoder_data/train_set" 
-# res = resize_images(image_paths, s, save_dir)
-# print('\n', f"resized images saved to path {save_dir}" if res else f"an error occured", '\n')
+res = preprocess(image_paths, s, save_dir)
+print('\n', f"resized images saved to path {save_dir}" if res else f"an error occured", '\n')
 
 # import glob
 # glob.glob(path) ??
@@ -103,11 +108,22 @@ for i in range(len(save_dir)):
     plt.imshow(cv2.cvtColor(cv2.imread(preprocessed_images[i]), cv2.COLOR_BGR2RGB))
 plt.show()
 
-# gaussian, yellowish color noise  (228, 215, 170), (164, 152, 107)
+# # data augmentation - 3 turns 
+# for pr_im in :
+#     cv2.imwrite(os.path.join(save_dir, os.path.basename(img)), cv2.resize(im, size))
+#     cv2.flip()
+
+
+# gaussian
+# yellowish color noise  (228, 215, 170), (164, 152, 107)
+# combination
+# different image sectors
+# adding noise should be random (like for image1 it's Gaussian and for image90 it's yellow)
 save_dir_noise = save_dir.split('/')[0] + '/train_noise'
 print(save_dir_noise)
 print(os.path.isabs(save_dir), os.path.isdir(save_dir_noise))
 print(os.path.isabs('~/bsh_basics.txt')) # False, why?
 # '/home/skrand/bsh_basics.txt' - True
 # '~/bsh_basics.txt' - False
+
 
